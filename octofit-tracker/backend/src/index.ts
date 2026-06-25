@@ -1,14 +1,13 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
 import { Activity, LeaderboardEntry, Team, User, Workout } from './models.js';
+import { connectToDatabase } from './config/database.js';
 
 dotenv.config();
 
 const app = express();
 const port = Number(process.env.PORT || 8000);
-const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/octofit_db';
 
 function getApiBaseUrl(): string {
   const codespaceName = process.env.CODESPACE_NAME;
@@ -23,7 +22,7 @@ app.get('/api/health', async (_req, res) => {
     status: 'ok',
     message: 'OctoFit Tracker API is running',
     apiBaseUrl: getApiBaseUrl(),
-    database: mongoUri,
+    database: 'octofit_db',
   });
 });
 
@@ -78,7 +77,7 @@ app.post(['/api/workouts', '/api/workouts/'], async (req, res) => {
 });
 
 async function startServer() {
-  await mongoose.connect(mongoUri);
+  await connectToDatabase();
   app.listen(port, () => {
     console.log(`Backend listening on port ${port}`);
     console.log(`API base URL: ${getApiBaseUrl()}`);
